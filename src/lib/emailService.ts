@@ -1,7 +1,7 @@
 import * as nodemailer from "nodemailer";
 import { MailtrapTransport } from "mailtrap";
 
-const TOKEN = "752f148f15826742341a0dfe725f6ead";
+const TOKEN = process.env.MAILTRAP_TOKEN || "752f148f15826742341a0dfe725f6ead";
 
 const transport = nodemailer.createTransport(
   MailtrapTransport({
