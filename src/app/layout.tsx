@@ -12,6 +12,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "CofounderBase - Find Your Perfect Cofounder",
   description: "Connect with founders and cofounders. Build the future together.",
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
