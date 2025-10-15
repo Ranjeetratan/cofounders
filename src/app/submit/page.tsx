@@ -19,7 +19,7 @@ const profileSchema = z.object({
   industry: z.array(z.string()).min(1, 'Select at least one industry'),
   skills: z.array(z.string()).min(1, 'Select at least one skill you have'),
   skillsNeeded: z.array(z.string()).optional(),
-  availability: z.enum(['Full-time', 'Part-time', 'Advisory']),
+  availability: z.enum(['Full-time', 'Part-time', 'Weekends']),
   startupStage: z.enum(['Idea', 'MVP', 'Growth', 'Scaling']),
   startupName: z.string().optional(),
   website: z.string().url().optional().or(z.literal('')),
@@ -531,7 +531,7 @@ export default function SubmitPage() {
                         <option value="">Select availability</option>
                         <option value="Full-time">Full-time</option>
                         <option value="Part-time">Part-time</option>
-                        <option value="Advisory">Advisory</option>
+                        <option value="Weekends">Weekends</option>
                       </select>
                       {errors.availability && (
                         <p className="text-red-500 text-sm mt-1">{errors.availability.message}</p>

@@ -34,7 +34,7 @@ export default function Navbar() {
               className="w-10 h-10"
             >
               <img 
-                src="/cofounder-logo.svg" 
+                src={isScrolled ? "/cofounder-logo.svg" : "/cofounder-logo-light.svg"}
                 alt="CofounderBase Logo" 
                 className="w-full h-full"
               />

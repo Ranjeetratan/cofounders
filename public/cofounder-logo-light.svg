@@ -1,0 +1,26 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer ring representing community/network -->
+  <circle cx="60" cy="60" r="45" fill="none" stroke="#ffffff" stroke-width="3"/>
+  
+  <!-- Inner diamond shape representing partnership/collaboration -->
+  <path d="M60 25 L85 60 L60 95 L35 60 Z" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="3" 
+        stroke-linejoin="round"/>
+  
+  <!-- Central connection point -->
+  <circle cx="60" cy="60" r="8" fill="#ff7b00"/>
+  
+  <!-- Four connection nodes representing founders -->
+  <circle cx="60" cy="25" r="4" fill="#ffffff"/>
+  <circle cx="85" cy="60" r="4" fill="#ffffff"/>
+  <circle cx="60" cy="95" r="4" fill="#ffffff"/>
+  <circle cx="35" cy="60" r="4" fill="#ffffff"/>
+  
+  <!-- Subtle connection lines -->
+  <line x1="60" y1="29" x2="60" y2="52" stroke="#ff7b00" stroke-width="2" opacity="0.8"/>
+  <line x1="81" y1="60" x2="68" y2="60" stroke="#ff7b00" stroke-width="2" opacity="0.8"/>
+  <line x1="60" y1="91" x2="60" y2="68" stroke="#ff7b00" stroke-width="2" opacity="0.8"/>
+  <line x1="39" y1="60" x2="52" y2="60" stroke="#ff7b00" stroke-width="2" opacity="0.8"/>
+</svg>
