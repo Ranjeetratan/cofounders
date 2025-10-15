@@ -121,8 +121,10 @@ export default function SubmitPage() {
         // Store form data for review
         const data = watch();
         setFormData(data);
+        setCurrentStep(4); // Go to review step
+      } else if (currentStep < 3) {
+        setCurrentStep(prev => prev + 1);
       }
-      setCurrentStep(prev => prev + 1);
     }
   };
 
@@ -131,7 +133,10 @@ export default function SubmitPage() {
   };
 
   const onSubmit = async (data: ProfileFormData) => {
-    if (currentStep !== 4) return; // Only submit on step 4
+    if (currentStep !== 4) {
+      console.log('Form submission blocked - not on step 4, current step:', currentStep);
+      return; // Only submit on step 4
+    }
     
     setIsLoading(true);
     try {

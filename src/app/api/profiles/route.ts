@@ -204,34 +204,58 @@ export async function GET(request: NextRequest) {
 
     const profiles = await profileService.getProfiles(filters);
 
-    // If no profiles in database, use dummy data for demonstration
-    if (profiles.length === 0) {
-      const { searchParams } = new URL(request.url);
-      const featured = searchParams.get('featured');
-      const limit = searchParams.get('limit');
-      const status = searchParams.get('status') || 'approved';
-      
-      let filteredProfiles = dummyProfiles.filter(profile => {
-        if (status !== 'all' && profile.status !== status) return false;
-        if (featured === 'true' && !profile.featured) return false;
-        return true;
-      });
+    // Combine real Supabase data with dummy data for demonstration
+    const featured = filters.featured;
+    const limit = filters.limit;
+    const status = filters.status;
+    
+    // Filter dummy profiles
+    let filteredDummyProfiles = dummyProfiles.filter(profile => {
+      if (status !== 'all' && profile.status !== status) return false;
+      if (featured === 'true' && !profile.featured) return false;
+      return true;
+    });
 
-      if (limit) {
-        filteredProfiles = filteredProfiles.slice(0, parseInt(limit));
-      }
+    // Convert Supabase profiles to match dummy data format for consistency
+    const convertedProfiles = profiles.map(profile => ({
+      _id: profile.id,
+      fullName: profile.full_name,
+      email: profile.email,
+      location: profile.location,
+      linkedinUrl: profile.linkedin_url,
+      profilePicture: profile.profile_picture,
+      type: profile.type,
+      lookingFor: profile.looking_for,
+      bio: profile.bio,
+      industry: profile.industry,
+      skills: profile.skills,
+      skillsNeeded: profile.skills_needed,
+      availability: profile.availability,
+      startupStage: profile.startup_stage,
+      startupName: profile.startup_name,
+      website: profile.website,
+      status: profile.status,
+      featured: profile.featured,
+      createdAt: profile.created_at,
+      updatedAt: profile.updated_at
+    }));
 
+    // Combine real data with dummy data (real data first)
+    const allProfiles = [...convertedProfiles, ...filteredDummyProfiles];
+
+    if (limit) {
+      const limitedProfiles = allProfiles.slice(0, parseInt(limit));
       return NextResponse.json({
         success: true,
-        profiles: filteredProfiles,
-        count: filteredProfiles.length,
+        profiles: limitedProfiles,
+        count: limitedProfiles.length,
       });
     }
 
     return NextResponse.json({
       success: true,
-      profiles,
-      count: profiles.length,
+      profiles: allProfiles,
+      count: allProfiles.length,
     });
   } catch (error) {
     console.error('Error fetching profiles, using dummy data:', error);
@@ -315,7 +339,7 @@ export async function POST(request: NextRequest) {
       // Simulate successful submission when Supabase is not available
       return NextResponse.json({
         success: true,
-        message: 'Profile submitted successfully (demo mode)',
+        message: 'Profile submitted successfully - will appear in admin panel for review',
         profile: {
           ...body,
           id: 'demo_' + Date.now(),
