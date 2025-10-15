@@ -27,13 +27,17 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-3">
             <motion.div 
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className="w-8 h-8 bg-black rounded-full flex items-center justify-center"
+              className="w-10 h-10"
             >
-              <div className="w-2 h-2 bg-accent rounded-full"></div>
+              <img 
+                src="/cofounder-logo.svg" 
+                alt="CofounderBase Logo" 
+                className="w-full h-full"
+              />
             </motion.div>
             <span className={`text-xl font-semibold transition-colors ${
               isScrolled ? 'text-gray-900' : 'text-white'
