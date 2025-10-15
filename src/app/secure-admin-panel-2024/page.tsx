@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 
 export default function SecureAdminPage() {
+  const [isClient, setIsClient] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -51,9 +52,13 @@ export default function SecureAdminPage() {
     featured: 0,
   });
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const authenticate = () => {
-    // More secure password
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || password === 'CofounderBase@2024!Secure') {
+    // Check password
+    if (password === 'CofounderBase@2024!Secure') {
       setIsAuthenticated(true);
       fetchProfiles();
       fetchSettings();
@@ -159,6 +164,17 @@ export default function SecureAdminPage() {
                          profile.location.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  if (!isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="animate-spin w-8 h-8 mx-auto mb-4 text-gray-600" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (

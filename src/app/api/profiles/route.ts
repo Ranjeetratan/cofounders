@@ -123,6 +123,66 @@ const dummyProfiles = [
     featured: false,
     createdAt: new Date(),
     updatedAt: new Date()
+  },
+  // Additional profiles for admin panel testing
+  {
+    _id: '7',
+    fullName: "Jessica Martinez",
+    email: "jessica.martinez@email.com",
+    location: "Barcelona, Spain / CET",
+    linkedinUrl: "https://linkedin.com/in/jessicamartinez",
+    profilePicture: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
+    type: "Founder",
+    lookingFor: "Looking for a technical co-founder to build a sustainable travel platform.",
+    bio: "Former travel industry executive with 12 years experience. Building a platform to make travel more sustainable and accessible.",
+    industry: ["Travel", "Sustainability", "Technology"],
+    skills: ["Business Development", "Operations", "Marketing"],
+    availability: "Full-time",
+    startupStage: "Idea",
+    startupName: "EcoTravel",
+    status: "pending",
+    featured: false,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    _id: '8',
+    fullName: "Michael Chang",
+    email: "michael.chang@email.com",
+    location: "Singapore / SGT",
+    linkedinUrl: "https://linkedin.com/in/michaelchang",
+    profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    type: "Co-founder",
+    lookingFor: "Seeking to join a fintech startup as CTO to build next-gen payment solutions.",
+    bio: "Senior engineer at PayPal with expertise in payment systems and blockchain technology. Ready to co-found a fintech startup.",
+    industry: ["Finance", "Technology", "Blockchain"],
+    skills: ["Engineering", "Blockchain", "Product Management"],
+    availability: "Full-time",
+    startupStage: "MVP",
+    status: "pending",
+    featured: false,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    _id: '9',
+    fullName: "Lisa Johnson",
+    email: "lisa.johnson@email.com",
+    location: "Sydney, Australia / AEST",
+    linkedinUrl: "https://linkedin.com/in/lisajohnson",
+    profilePicture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    type: "Founder",
+    lookingFor: "Need a technical co-founder for my health tech startup focused on mental wellness.",
+    bio: "Clinical psychologist turned entrepreneur. Building digital solutions for mental health support and therapy access.",
+    industry: ["Healthcare", "Technology", "Mental Health"],
+    skills: ["Healthcare", "Psychology", "Business Development"],
+    availability: "Full-time",
+    startupStage: "Idea",
+    startupName: "MindWell",
+    status: "rejected",
+    featured: false,
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 
@@ -143,6 +203,30 @@ export async function GET(request: NextRequest) {
     };
 
     const profiles = await profileService.getProfiles(filters);
+
+    // If no profiles in database, use dummy data for demonstration
+    if (profiles.length === 0) {
+      const { searchParams } = new URL(request.url);
+      const featured = searchParams.get('featured');
+      const limit = searchParams.get('limit');
+      const status = searchParams.get('status') || 'approved';
+      
+      let filteredProfiles = dummyProfiles.filter(profile => {
+        if (status !== 'all' && profile.status !== status) return false;
+        if (featured === 'true' && !profile.featured) return false;
+        return true;
+      });
+
+      if (limit) {
+        filteredProfiles = filteredProfiles.slice(0, parseInt(limit));
+      }
+
+      return NextResponse.json({
+        success: true,
+        profiles: filteredProfiles,
+        count: filteredProfiles.length,
+      });
+    }
 
     return NextResponse.json({
       success: true,

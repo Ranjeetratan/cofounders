@@ -12,7 +12,7 @@
   <!-- Central connection point -->
   <circle cx="60" cy="60" r="8" fill="#ff7b00"/>
   
-  <!-- Four connection nodes representing founders -->
+  <!-- Four connection nodes representing founders - WHITE for dark backgrounds -->
   <circle cx="60" cy="25" r="4" fill="#ffffff"/>
   <circle cx="85" cy="60" r="4" fill="#ffffff"/>
   <circle cx="60" cy="95" r="4" fill="#ffffff"/>
