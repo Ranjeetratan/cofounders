@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import Feature from '@/models/Feature';
+import { featureService } from '@/lib/supabaseService';
 
 // Default features data
 const defaultFeatures = [
@@ -188,14 +187,7 @@ const defaultFeatures = [
 
 export async function GET() {
   try {
-    await connectDB();
-    
-    let features = await Feature.find().sort({ votes: -1, createdAt: -1 });
-    
-    if (features.length === 0) {
-      // Create default features if none exist
-      features = await Feature.insertMany(defaultFeatures);
-    }
+    const features = await featureService.getFeatures();
 
     return NextResponse.json({
       success: true,
@@ -204,7 +196,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching features:', error);
     
-    // Return default features if database is not available
+    // Return default features if Supabase is not available
     return NextResponse.json({
       success: true,
       features: defaultFeatures.sort((a, b) => b.votes - a.votes),
@@ -214,12 +206,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    await connectDB();
-    
     const body = await request.json();
     
-    const feature = new Feature(body);
-    await feature.save();
+    const feature = await featureService.createFeature(body);
 
     return NextResponse.json({
       success: true,

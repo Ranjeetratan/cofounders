@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import Settings from '@/models/Settings';
+import { settingsService } from '@/lib/supabaseService';
 
 // Default settings
 const defaultSettings = {
@@ -19,24 +18,16 @@ const defaultSettings = {
 
 export async function GET() {
   try {
-    await connectDB();
-    
-    let settings = await Settings.findOne();
-    
-    if (!settings) {
-      // Create default settings if none exist
-      settings = new Settings(defaultSettings);
-      await settings.save();
-    }
+    const settings = await settingsService.getSettings();
 
     return NextResponse.json({
       success: true,
-      settings,
+      settings: { ...defaultSettings, ...settings },
     });
   } catch (error) {
     console.error('Error fetching settings:', error);
     
-    // Return default settings if database is not available
+    // Return default settings if Supabase is not available
     return NextResponse.json({
       success: true,
       settings: defaultSettings,
@@ -46,23 +37,18 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    await connectDB();
-    
     const body = await request.json();
     
-    let settings = await Settings.findOne();
+    // Update each setting individually
+    const promises = Object.entries(body).map(([key, value]) =>
+      settingsService.updateSetting(key, value)
+    );
     
-    if (!settings) {
-      settings = new Settings(body);
-    } else {
-      Object.assign(settings, body);
-    }
-    
-    await settings.save();
+    await Promise.all(promises);
 
     return NextResponse.json({
       success: true,
-      settings,
+      settings: body,
     });
   } catch (error) {
     console.error('Error updating settings:', error);

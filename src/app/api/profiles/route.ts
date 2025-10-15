@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import Profile from '@/models/Profile';
+import { profileService } from '@/lib/supabaseService';
 import { sendSubmissionConfirmationEmail } from '@/lib/emailService';
 
 // Dummy data for when database is not available
@@ -129,66 +128,21 @@ const dummyProfiles = [
 
 export async function GET(request: NextRequest) {
   try {
-    await connectDB();
-    
     const { searchParams } = new URL(request.url);
-    const featured = searchParams.get('featured');
-    const limit = searchParams.get('limit');
-    const status = searchParams.get('status') || 'approved';
-    const type = searchParams.get('type');
-    const industry = searchParams.get('industry');
-    const skills = searchParams.get('skills');
-    const skillsNeeded = searchParams.get('skillsNeeded');
-    const location = searchParams.get('location');
-    const startupStage = searchParams.get('startupStage');
-    const availability = searchParams.get('availability');
+    const filters = {
+      featured: searchParams.get('featured'),
+      limit: searchParams.get('limit'),
+      status: searchParams.get('status') || 'approved',
+      type: searchParams.get('type'),
+      industry: searchParams.get('industry'),
+      skills: searchParams.get('skills'),
+      skillsNeeded: searchParams.get('skillsNeeded'),
+      location: searchParams.get('location'),
+      startupStage: searchParams.get('startupStage'),
+      availability: searchParams.get('availability'),
+    };
 
-    let query: any = {};
-    
-    // Only filter by status if it's not 'all' (for admin panel)
-    if (status !== 'all') {
-      query.status = status;
-    }
-
-    if (featured === 'true') {
-      query.featured = true;
-    }
-
-    if (type) {
-      query.type = type;
-    }
-
-    if (industry) {
-      query.industry = { $in: industry.split(',') };
-    }
-
-    if (skills) {
-      query.skills = { $in: skills.split(',') };
-    }
-
-    if (skillsNeeded) {
-      query.skillsNeeded = { $in: skillsNeeded.split(',') };
-    }
-
-    if (location) {
-      query.location = { $regex: location, $options: 'i' };
-    }
-
-    if (startupStage) {
-      query.startupStage = startupStage;
-    }
-
-    if (availability) {
-      query.availability = availability;
-    }
-
-    let profilesQuery = Profile.find(query).sort({ createdAt: -1 });
-
-    if (limit) {
-      profilesQuery = profilesQuery.limit(parseInt(limit));
-    }
-
-    const profiles = await profilesQuery.exec();
+    const profiles = await profileService.getProfiles(filters);
 
     return NextResponse.json({
       success: true,
@@ -198,7 +152,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching profiles, using dummy data:', error);
     
-    // Fallback to dummy data when database is not available
+    // Fallback to dummy data when Supabase is not available
     const { searchParams } = new URL(request.url);
     const featured = searchParams.get('featured');
     const limit = searchParams.get('limit');
@@ -228,15 +182,28 @@ export async function POST(request: NextRequest) {
     console.log('Received profile data:', body);
     
     try {
-      await connectDB();
-      
-      const profile = new Profile({
-        ...body,
-        status: 'pending',
+      // Convert field names to match Supabase schema
+      const profileData = {
+        full_name: body.fullName,
+        email: body.email,
+        location: body.location,
+        linkedin_url: body.linkedinUrl,
+        profile_picture: body.profilePicture,
+        type: body.type,
+        looking_for: body.lookingFor,
+        bio: body.bio,
+        industry: body.industry || [],
+        skills: body.skills || [],
+        skills_needed: body.skillsNeeded || [],
+        availability: body.availability,
+        startup_stage: body.startupStage,
+        startup_name: body.startupName,
+        website: body.website,
+        status: 'pending' as const,
         featured: false,
-      });
+      };
 
-      await profile.save();
+      const profile = await profileService.createProfile(profileData);
 
       // Send confirmation email
       try {
@@ -252,7 +219,7 @@ export async function POST(request: NextRequest) {
         profile,
       }, { status: 201 });
     } catch (dbError) {
-      console.error('Database error, simulating success:', dbError);
+      console.error('Supabase error, simulating success:', dbError);
       
       // Send confirmation email even in demo mode
       try {
@@ -261,17 +228,17 @@ export async function POST(request: NextRequest) {
         console.error('Error sending confirmation email:', emailError);
       }
       
-      // Simulate successful submission when database is not available
+      // Simulate successful submission when Supabase is not available
       return NextResponse.json({
         success: true,
         message: 'Profile submitted successfully (demo mode)',
         profile: {
           ...body,
-          _id: 'demo_' + Date.now(),
+          id: 'demo_' + Date.now(),
           status: 'pending',
           featured: false,
-          createdAt: new Date(),
-          updatedAt: new Date()
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         },
       }, { status: 201 });
     }
